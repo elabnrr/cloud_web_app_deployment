@@ -25,14 +25,16 @@ jobs:
         python -m pip install --upgrade pip
         pip install -r requirements.txt --target=".python_packages/lib/site-packages"
 
-    - name: Zip Artifacts
+    - name: Create Zip Package
       run: |
         cd backend
         zip -r ../release.zip .
 
-    - name: Deploy to Azure Function via Zip Deploy
-      uses: azure/functions-action@v1
+    - name: Login to Azure using Publish Profile
+      uses: azure/login@v1
       with:
-        app-name: 'buildautomation3'
-        package: './release.zip'
-        publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+        creds: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
+
+    - name: Deploy to Azure Function via Azure CLI
+      run: |
+        az functionapp deployment source config-zip -g rg-cloud-project -n buildautomation3 --src release.zip
