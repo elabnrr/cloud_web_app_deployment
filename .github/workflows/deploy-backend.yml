@@ -21,9 +21,10 @@ jobs:
 
     - name: Install dependencies
       run: |
-        cd backend
+        pushd './backend'
         python -m pip install --upgrade pip
-        pip install -r requirements.txt --target=".python_packages/lib/site-packages"
+        pip install -r requirements.txt --target="./.python_packages/lib/site-packages"
+        popd
 
     - name: Deploy to Azure Function
       uses: azure/functions-action@v1
@@ -31,5 +32,6 @@ jobs:
         app-name: 'buildautomation3'
         package: './backend'
         publish-profile: ${{ secrets.AZURE_FUNCTIONAPP_PUBLISH_PROFILE }}
-        scm-do-build-during-deployment: true
-        enable-oryx-build: true
+        # Hata veren kısımları false çekerek Kudu kısıtlamasını aşıyoruz:
+        scm-do-build-during-deployment: false
+        enable-oryx-build: false
